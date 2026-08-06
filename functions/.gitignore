@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+*.pem
+
+# Dependency directory
+node_modules/
+
+# TypeScript
+lib/
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Environment
+.env
+.env.local
+.env.*.local

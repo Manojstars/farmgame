@@ -1,0 +1,25 @@
+{
+  "root": true,
+  "extends": [
+    "expo",
+    "universe/native",
+    "universe/web"
+  ],
+  "plugins": ["@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "rules": {
+    "react/display-name": "off",
+    "react/jsx-no-useless-fragment": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =====================================================
+    // PLAYERS COLLECTION
+    // =====================================================
+    match /players/{userId} {
+      // Users can read/write their own player data
+      allow read, write: if request.auth.uid == userId;
+      
+      // Allow Cloud Functions to read/write
+      allow read, write: if request.auth.token.firebase.sign_in_provider == 'anonymous' || 
+                            request.auth != null;
+    }
+    
+    // =====================================================
+    // FARMS COLLECTION
+    // =====================================================
+    match /farms/{userId} {
+      // Users can read/write their own farm data
+      allow read, write: if request.auth.uid == userId;
+    }
+    
+    // =====================================================
+    // MARKET LISTINGS COLLECTION
+    // =====================================================
+    match /marketListings/{document=**} {
+      // All authenticated users can read market listings
+      allow read: if request.auth != null;
+      
+      // Only Cloud Functions can write
+      allow create, update, delete: if false;
+    }
+    
+    // =====================================================
+    // CONTRACTS COLLECTION
+    // =====================================================
+    match /contracts/{contractId} {
+      // Users can read contracts assigned to them
+      allow read: if request.auth.uid == resource.data.playerId;
+      
+      // Only Cloud Functions can create/update/delete
+      allow create, update, delete: if false;
+    }
+    
+    // =====================================================
+    // TRANSACTIONS COLLECTION (Audit Log)
+    // =====================================================
+    match /transactions/{document=**} {
+      // Users can read their own transactions
+      allow read: if request.auth.uid == resource.data.userId;
+      
+      // Only Cloud Functions can write
+      allow create: if false;
+      allow update, delete: if false;
+    }
+    
+    // =====================================================
+    // WEATHER EVENTS COLLECTION
+    // =====================================================
+    match /weatherEvents/{document=**} {
+      // All authenticated users can read
+      allow read: if request.auth != null;
+      
+      // Only Cloud Functions can write
+      allow create, update, delete: if false;
+    }
+    
+    // =====================================================
+    // LEADERBOARDS COLLECTION
+    // =====================================================
+    match /leaderboards/{document=**} {
+      // All authenticated users can read
+      allow read: if request.auth != null;
+      
+      // Only Cloud Functions can write
+      allow create, update, delete: if false;
+    }
+    
+    // =====================================================
+    // ANALYTICS EVENTS COLLECTION
+    // =====================================================
+    match /analyticsEvents/{document=**} {
+      // Users can only read their own events
+      allow read: if request.auth.uid == resource.data.userId;
+      
+      // Users can create their own events
+      allow create: if request.auth.uid == request.resource.data.userId;
+      
+      // No updates or deletes
+      allow update, delete: if false;
+    }
+  }
+}

@@ -1,8 +1,10 @@
-# 🎉 FarmGame Firebase Integration Complete
+# 🎉 FarmGame Firebase Integration Complete (Spark Plan)
 
 ## ✅ What's Been Set Up
 
-Your FarmGame app is now fully configured to connect to **Firebase Project: farm-in-america**
+Your FarmGame app is now fully configured to connect to **Firebase Project: farm-in-america** on the **Spark (free) plan**.
+
+**KEY DECISION:** V1 uses NO Cloud Functions. All gameplay logic is client-side to keep costs at $0.
 
 ### 📦 Configuration Files Created
 
@@ -17,18 +19,15 @@ Your FarmGame app is now fully configured to connect to **Firebase Project: farm
 | `src/services/firebaseService.ts` | Updated to use .env credentials | ✅ Ready |
 | `DEPLOYMENT_CHECKLIST.md` | Complete deployment guide | ✅ Ready |
 
-### ☁️ Cloud Functions (6 Ready to Deploy)
-
+### ☁️ Cloud Functions (Placeholder for Future)
 ```
-onSellCrop                    → Marketplace sales (anti-cheat validation)
-updateMarketPrices           → Hourly price updates
-generateDailyContracts       → Daily task generation
-onCompleteContract           → Contract completion with rewards
-calculateOfflineProgress     → Offline progression (energy, crops)
-onPurchaseComplete           → IAP verification & gem granting
+NOT DEPLOYED IN V1 (To save cost on Spark plan)
+Will add when needed:
+- IAP receipt validation
+- Player-to-player trading
+- Leaderboards
+- Scheduled events
 ```
-
-### 🗄️ Firestore Collections (8 Defined with Security Rules)
 
 - `players/` - User profiles
 - `farms/` - Farm data (crops, animals, buildings)
@@ -41,40 +40,15 @@ onPurchaseComplete           → IAP verification & gem granting
 
 ---
 
-## 🚀 Ready to Deploy - 3 Steps
+## 🚀 Ready to Deploy - 2 Steps (Spark Plan - No Cloud Functions)
 
-### Step 1: Install Firebase CLI (if not already)
-```bash
-npm install -g firebase-tools
-firebase login
-```
-
-### Step 2: Deploy Cloud Functions
+### Step 1: Deploy Firestore Rules
 ```bash
 cd "c:\Users\AQO1COB\farm life\FarmGame"
-npx firebase deploy --only functions
-```
-
-**Expected output:**
-```
-✓ Deploy complete!
-
-Function URL (onSellCrop): https://us-east1-farm-in-america.cloudfunctions.net/onSellCrop
-Function URL (updateMarketPrices): https://us-east1-farm-in-america.cloudfunctions.net/updateMarketPrices
-...etc...
-```
-
-### Step 3: Deploy Firestore Rules
-```bash
 npx firebase deploy --only firestore:rules
 ```
 
----
-
-## 🧪 Test Your App
-
-After deployment, test locally:
-
+### Step 2: Test Your App
 ```bash
 npm start
 ```
@@ -82,14 +56,13 @@ npm start
 Choose:
 - `a` for Android Emulator
 - `i` for iOS Simulator
-- `w` for Web
 
 ### Test Checklist
 1. ✅ Create account (email/anonymous login)
 2. ✅ View Home screen with resources
 3. ✅ Plant crops on Farm
-4. ✅ Sell items at Market (calls `onSellCrop` function)
-5. ✅ Complete contracts (calls `onCompleteContract` function)
+4. ✅ Sell items at Market (all client-side)
+5. ✅ Complete contracts (all client-side)
 6. ✅ Open Firebase Console and verify Firestore data writes
 
 ---
@@ -188,10 +161,40 @@ See **DEPLOYMENT_GUIDE.md** for complete instructions.
 
 ---
 
-## ✨ You're Ready!
+---
 
-Everything is configured. Your Firebase backend is waiting for deployment.
+## 🎯 Next Phase: App Store Submission
 
-**Ready to go live?** 🚀
+After testing locally, you can build for app stores:
 
-Run: `npx firebase deploy --only functions`
+**Android APK:**
+```bash
+eas build --platform android
+```
+
+**iOS IPA:**
+```bash
+eas build --platform ios
+```
+
+Then submit to Google Play Store and Apple App Store.
+
+See **DEPLOYMENT_GUIDE.md** for complete instructions.
+
+---
+
+## ℹ️ About Spark vs Blaze Plan
+
+**V1 Strategy:** Spark (Free) - No Cloud Functions
+
+Your game runs entirely client-side and stays on the free tier.
+
+**When to upgrade to Blaze ($$$):**
+- After launch when you have real users
+- If you add multiplayer features (trading, battles)
+- If you need server-side validation (leaderboards, IAP)
+- Estimated cost: $0-2 USD/day at 10K+ users
+
+See **SPARK_PLAN_ARCHITECTURE.md** for detailed cost analysis.
+
+---

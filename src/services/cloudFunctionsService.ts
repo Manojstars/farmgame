@@ -1,244 +1,68 @@
-import { functions } from './firebaseService';
-import { Player, Farm, Contract } from '../types/game';
-
 /**
- * Cloud Functions Integration Service
- * Calls server-side logic for validation, calculations, and state management
+ * Cloud Functions Service (V1 - Spark Plan Edition)
+ * 
+ * ARCHITECTURE: Spark (Free) Tier - No Cloud Functions Yet
+ * 
+ * All gameplay logic is client-side to avoid Blaze plan costs in V1.
+ * 
+ * Cloud Functions will be added only when necessary:
+ * - In-app purchase validation (security)
+ * - Player trading/marketplace (fraud prevention)
+ * - Leaderboards (computation)
+ * - Scheduled events (weather, maintenance)
+ * 
+ * For now: Auth, Firestore, Storage, Remote Config, Analytics only
  */
 
+/**
+ * Placeholder service for future Cloud Functions
+ * V1: All game logic is client-side and persisted to Firestore
+ */
 export const cloudFunctionsService = {
   /**
-   * Validate and process crop sale transaction
-   * Server-side: Prevents cheating, updates marketplace, logs analytics
+   * FUTURE: Validate IAP receipts with Apple/Google
+   * V1 Status: IAP handled by RevenueCat SDK
    */
-  async onSellCrop(
-    userId: string,
-    cropName: string,
-    quantity: number,
-    basePrice: number
-  ): Promise<{ success: boolean; reward: number; error?: string }> {
-    try {
-      const callable = functions.httpsCallable('onSellCrop');
-      const result = await callable({
-        userId,
-        cropName,
-        quantity,
-        basePrice,
-      });
-      return result.data;
-    } catch (error) {
-      console.error('Sell crop failed:', error);
-      return {
-        success: false,
-        reward: 0,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
+  async validateIAPReceipt(productId: string): Promise<boolean> {
+    console.log(`[FUTURE] Validating IAP: ${productId}`);
+    return false;
   },
 
   /**
-   * Update marketplace prices dynamically
-   * Server-side: Calculates price fluctuations based on supply/demand
+   * FUTURE: Process secure marketplace transactions
+   * V1 Status: Player-to-NPC only (client-side)
    */
-  async updateMarketPrices(): Promise<{
-    success: boolean;
-    prices?: Record<string, number>;
-    error?: string;
-  }> {
-    try {
-      const callable = functions.httpsCallable('updateMarketPrices');
-      const result = await callable({});
-      return result.data;
-    } catch (error) {
-      console.error('Update market prices failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
+  async processMarketplaceTransaction(sellerId: string, buyerId: string): Promise<boolean> {
+    console.log(`[FUTURE] Marketplace: ${sellerId} → ${buyerId}`);
+    return false;
   },
 
   /**
-   * Generate daily contracts for a player
-   * Server-side: Creates randomized daily orders based on player level and inventory
+   * FUTURE: Generate server-side contracts
+   * V1 Status: Client-generated (random seed based)
    */
-  async generateDailyContracts(userId: string): Promise<{
-    success: boolean;
-    contracts?: Contract[];
-    error?: string;
-  }> {
-    try {
-      const callable = functions.httpsCallable('generateDailyContracts');
-      const result = await callable({ userId });
-      return result.data;
-    } catch (error) {
-      console.error('Generate daily contracts failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
+  async generateDailyContracts(userId: string): Promise<unknown> {
+    console.log(`[FUTURE] Generate contracts for ${userId}`);
+    return [];
   },
 
   /**
-   * Process contract completion with validation
-   * Server-side: Verifies inventory, prevents item duplication, logs transaction
+   * FUTURE: Calculate leaderboards
+   * V1 Status: Not implemented yet
    */
-  async onCompleteContract(
-    userId: string,
-    contractId: string
-  ): Promise<{ success: boolean; reward?: number; error?: string }> {
-    try {
-      const callable = functions.httpsCallable('onCompleteContract');
-      const result = await callable({ userId, contractId });
-      return result.data;
-    } catch (error) {
-      console.error('Complete contract failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
+  async updateLeaderboards(): Promise<void> {
+    console.log('[FUTURE] Update leaderboards');
   },
 
   /**
-   * Calculate offline progress
-   * Server-side: Uses server timestamp to prevent time cheating, calculates resources earned
+   * FUTURE: Trigger server events
+   * V1 Status: Client-side only
    */
-  async calculateOfflineProgress(userId: string): Promise<{
-    success: boolean;
-    coinsEarned?: number;
-    cropsHarvested?: Record<string, number>;
-    error?: string;
-  }> {
-    try {
-      const callable = functions.httpsCallable('calculateOfflineProgress');
-      const result = await callable({ userId });
-      return result.data;
-    } catch (error) {
-      console.error('Calculate offline progress failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  },
-
-  /**
-   * Trigger random weather events
-   * Server-side: Creates game events that affect crops, triggers notifications
-   */
-  async triggerWeatherEvent(userId: string): Promise<{
-    success: boolean;
-    eventType?: string;
-    effect?: string;
-    error?: string;
-  }> {
-    try {
-      const callable = functions.httpsCallable('triggerWeatherEvent');
-      const result = await callable({ userId });
-      return result.data;
-    } catch (error) {
-      console.error('Trigger weather event failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  },
-
-  /**
-   * Verify IAP purchase with app store
-   * Server-side: Validates receipt with Apple/Google, grants gems, logs transaction
-   */
-  async onPurchaseComplete(
-    userId: string,
-    productId: string,
-    transactionId: string,
-    platform: 'ios' | 'android'
-  ): Promise<{
-    success: boolean;
-    gemsGranted?: number;
-    error?: string;
-  }> {
-    try {
-      const callable = functions.httpsCallable('onPurchaseComplete');
-      const result = await callable({
-        userId,
-        productId,
-        transactionId,
-        platform,
-      });
-      return result.data;
-    } catch (error) {
-      console.error('Purchase completion failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  },
-
-  /**
-   * Send push notification to player
-   * Server-side: Triggers Firebase Cloud Messaging for engagement
-   */
-  async sendNotification(
-    userId: string,
-    title: string,
-    message: string,
-    data?: Record<string, string>
-  ): Promise<{
-    success: boolean;
-    notificationId?: string;
-    error?: string;
-  }> {
-    try {
-      const callable = functions.httpsCallable('sendNotification');
-      const result = await callable({
-        userId,
-        title,
-        message,
-        data,
-      });
-      return result.data;
-    } catch (error) {
-      console.error('Send notification failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  },
-
-  /**
-   * Process player level up event
-   * Server-side: Unlocks features, sends achievements, updates leaderboards
-   */
-  async onPlayerLevelUp(
-    userId: string,
-    newLevel: number
-  ): Promise<{
-    success: boolean;
-    unlockedFeatures?: string[];
-    error?: string;
-  }> {
-    try {
-      const callable = functions.httpsCallable('onPlayerLevelUp');
-      const result = await callable({ userId, newLevel });
-      return result.data;
-    } catch (error) {
-      console.error('Player level up failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
+  async triggerSpecialEvent(): Promise<void> {
+    console.log('[FUTURE] Trigger special event');
   },
 };
 
-/**
- * Cloud Functions Setup Guide for Production:
  * 
  * Installation:
  * 1. Navigate to functions folder: cd functions

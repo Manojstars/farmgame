@@ -6,10 +6,13 @@ export type Screen =
   | 'signup'
   | 'home'
   | 'farm'
+  | 'animals'
+  | 'buildings'
   | 'market'
   | 'contracts'
   | 'shop'
   | 'inventory'
+  | 'upgrades'
   | 'settings'
   | 'profile';
 
@@ -29,6 +32,7 @@ interface UIStore {
   addNotification: (notification: Notification) => void;
   removeNotification: (id: string) => void;
   clearNotifications: () => void;
+  clear: () => void;
 }
 
 export const useUIStore = create<UIStore>((set) => ({
@@ -67,6 +71,14 @@ export const useUIStore = create<UIStore>((set) => ({
 
   clearNotifications: () => {
     set({ notifications: [] });
+  },
+
+  clear: () => {
+    set({
+      currentScreen: 'splash',
+      isLoading: false,
+      notifications: [],
+    });
   },
 }));
 

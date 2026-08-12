@@ -20,7 +20,7 @@ const firebaseConfig = {
 
 // Initialize Firebase if not already initialized
 if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig as any);
 }
 
 export const auth = firebase.auth();
@@ -35,7 +35,7 @@ export const storage = firebase.storage();
 // Configure Remote Config
 remoteConfig.settings = {
   minimumFetchIntervalMillis: 3600000, // 1 hour
-  fetchTimeoutMillis: 60000,
+  fetchTimeMillis: 60000,
 };
 
 // Enable offline persistence for Firestore

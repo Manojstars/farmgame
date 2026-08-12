@@ -73,7 +73,7 @@ export const useMarketStore = create<MarketStore>()(
     }),
     {
       name: 'market-store',
-      storage: AsyncStorage,
+      storage: AsyncStorage as any,
       version: 1,
     }
   )

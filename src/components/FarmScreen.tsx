@@ -174,7 +174,7 @@ export const FarmScreen = () => {
       return (
         <TouchableOpacity
           key={index}
-          style={[styles.plot, styles.emptyPlot, selectedCrop && styles.selectedPlot]}
+          style={[styles.plot, styles.emptyPlot, selectedCrop ? styles.selectedPlot : undefined].filter(Boolean)}
           onPress={() => selectedCrop && handlePlantCrop(selectedCrop)}
         >
           <Text style={styles.plotText}>{selectedCrop ? '✓' : '+'}</Text>

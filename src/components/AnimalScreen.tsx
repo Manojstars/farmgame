@@ -65,7 +65,7 @@ export const AnimalScreen = () => {
     if (!animal) return;
 
     // Check if slot available
-    if (farm.animals.length >= farm.maxAnimalSlots) {
+    if (farm.animals.length >= farm.maxAnimals) {
       addNotification({
         id: 'no-slots',
         message: 'No animal slots available',
@@ -101,9 +101,12 @@ export const AnimalScreen = () => {
     const newAnimal: AnimalInstance = {
       id: generateId(),
       animalId,
+      slotIndex: farm.animals.length,
+      health: animal.maxHealth,
       boughtAt: Date.now(),
-      lastFedAt: Date.now(),
-      nextProductionAt: Date.now() + animal.productionTimeSeconds * 1000,
+      lastFed: Date.now(),
+      lastProduction: Date.now(),
+      nextProduction: Date.now() + animal.productionTimeSeconds * 1000,
     };
 
     addAnimal(newAnimal);
@@ -127,7 +130,7 @@ export const AnimalScreen = () => {
     if (!animal) return;
 
     const now = Date.now();
-    if (now < animalInstance.nextProductionAt) {
+    if (now < animalInstance.nextProduction) {
       addNotification({
         id: 'not-ready',
         message: `${animal.name} is still producing`,
@@ -150,17 +153,17 @@ export const AnimalScreen = () => {
 
     // Collect production
     updateAnimal(animalInstanceId, {
-      lastFedAt: now,
-      nextProductionAt: now + animal.productionTimeSeconds * 1000,
+      lastFed: now,
+      nextProduction: now + animal.productionTimeSeconds * 1000,
     });
-    updateCoins(animal.productionValue);
-    updateXP(animal.productionXP);
+    updateCoins(animal.productValue);
+    updateXP(animal.xpReward);
     updateEnergy(-GAME_CONFIG.ENERGY_COST_ACTION);
     updateStorage(animal.productName, 1);
 
     addNotification({
       id: `collected-${animal.id}`,
-      message: `Collected ${animal.productName} for ${animal.productionValue} coins!`,
+      message: `Collected ${animal.productName} for ${animal.productValue} coins!`,
       type: 'success',
       duration: 2000,
     });
@@ -198,7 +201,7 @@ export const AnimalScreen = () => {
     // Feed animal
     const now = Date.now();
     updateAnimal(animalInstanceId, {
-      lastFedAt: now,
+      lastFed: now,
     });
     updateCoins(-animal.feedCost);
     updateEnergy(-GAME_CONFIG.ENERGY_COST_ACTION);
@@ -246,9 +249,9 @@ export const AnimalScreen = () => {
     if (!animal) return null;
 
     const now = Date.now();
-    const isReady = now >= animalInstance.nextProductionAt;
-    const timeUntilReady = animalInstance.nextProductionAt - now;
-    const isFed = (now - animalInstance.lastFedAt) / (24 * 60 * 60 * 1000) < 1; // Fed within last 24h
+    const isReady = now >= animalInstance.nextProduction;
+    const timeUntilReady = animalInstance.nextProduction - now;
+    const isFed = (now - animalInstance.lastFed) / (24 * 60 * 60 * 1000) < 1; // Fed within last 24h
 
     return (
       <View key={index} style={[styles.slot, !isFed && styles.unhealthySlot]}>
@@ -289,7 +292,7 @@ export const AnimalScreen = () => {
   };
 
   const availableAnimals = getAvailableAnimals();
-  const maxSlots = Math.min(12, farm.maxAnimalSlots || 12);
+  const maxSlots = Math.min(12, farm.maxAnimals || 12);
   const animalSlots = Array.from({ length: maxSlots }, (_, i) => i);
 
   return (
@@ -327,7 +330,7 @@ export const AnimalScreen = () => {
                 <Text style={styles.animalCardOwned}>Owned: {ownedCount}</Text>
                 <Text style={styles.animalCardCost}>{formatNumber(animal.purchaseCost)} 💰</Text>
                 <Text style={styles.animalCardProd}>
-                  {formatNumber(animal.productionValue)} 🏆
+                  {formatNumber(animal.productValue)} 🏆
                 </Text>
               </TouchableOpacity>
             );

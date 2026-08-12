@@ -11,7 +11,7 @@ import { usePlayerStore } from '../store/playerStore';
 import { useFarmStore } from '../store/farmStore';
 import { useUIStore } from '../store/uiStore';
 import { BUILDINGS, GAME_CONFIG } from '../utils/constants';
-import { economyService } from '../services/economyService';
+import EconomyService from '../services/economyService';
 import { generateId, formatNumber } from '../utils/helpers';
 import type { BuildingInstance } from '../types/game';
 
@@ -42,7 +42,7 @@ export const BuildingsScreen = () => {
     const count = farm.buildings.filter((b) => b.buildingId === buildingId).length;
     const building = BUILDINGS[buildingId as keyof typeof BUILDINGS];
     if (!building) return 0;
-    return economyService.calculateStorageCapacity(building.storageBonus || 0, count);
+    return EconomyService.calculateStorageCapacity(building.storageBonus || 0, count);
   };
 
   const getTotalStorageCapacity = () => {
@@ -76,7 +76,7 @@ export const BuildingsScreen = () => {
     }
 
     // Check coins
-    if (player.coins < building.cost) {
+    if (player.coins < building.buildCost) {
       addNotification({
         id: 'low-coins',
         message: `Not enough coins to build ${building.name}`,
@@ -99,13 +99,13 @@ export const BuildingsScreen = () => {
 
     // Build
     const newBuilding: BuildingInstance = {
-      id: generateId(),
       buildingId,
+      level: 1,
       builtAt: Date.now(),
     };
 
     addBuilding(newBuilding);
-    updateCoins(-building.cost);
+    updateCoins(-building.buildCost);
     updateEnergy(-GAME_CONFIG.ENERGY_COST_ACTION);
     setSelectedBuilding(null);
 
@@ -137,7 +137,7 @@ export const BuildingsScreen = () => {
             <Text style={styles.buildingName}>{building.name}</Text>
             <Text style={styles.buildingCount}>Owned: {count}</Text>
           </View>
-          <Text style={styles.buildingCost}>{formatNumber(building.cost)} 💰</Text>
+          <Text style={styles.buildingCost}>{formatNumber(building.buildCost)} 💰</Text>
         </View>
 
         <Text style={styles.buildingDescription}>{building.description}</Text>
@@ -146,10 +146,10 @@ export const BuildingsScreen = () => {
         <TouchableOpacity
           style={[
             styles.buildBtn,
-            player.coins < building.cost && styles.buildBtnDisabled,
+            player.coins < building.buildCost && styles.buildBtnDisabled,
           ]}
           onPress={() => handleBuildBuilding(building.id)}
-          disabled={player.coins < building.cost}
+          disabled={player.coins < building.buildCost}
         >
           <Text style={styles.buildBtnText}>Build {building.name}</Text>
         </TouchableOpacity>

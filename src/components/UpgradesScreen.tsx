@@ -11,7 +11,7 @@ import { usePlayerStore } from '../store/playerStore';
 import { useFarmStore } from '../store/farmStore';
 import { useUIStore } from '../store/uiStore';
 import { GAME_CONFIG } from '../utils/constants';
-import { economyService } from '../services/economyService';
+import EconomyService from '../services/economyService';
 import { formatNumber } from '../utils/helpers';
 
 // Define upgrade tree

@@ -45,6 +45,8 @@ export interface Animal {
   xpReward: number;
   unlockedAtLevel: number;
   maxHealth: number;
+  purchaseCost: number;
+  emoji?: string;
 }
 
 export interface AnimalInstance {
@@ -55,6 +57,7 @@ export interface AnimalInstance {
   lastProduction: number;
   nextProduction: number;
   lastFed: number;
+  boughtAt: number;
 }
 
 export interface Building {
@@ -67,9 +70,16 @@ export interface Building {
   buildTimeSeconds: number;
   capacity?: number;
   processingRatio?: number;
+  unlockedAtLevel?: number;
+  storageBonus?: number;
+  animalSlotsBonus?: number;
+  plotsBonus?: number;
+  emoji?: string;
+  description?: string;
 }
 
 export interface BuildingInstance {
+  id?: string;
   buildingId: string;
   level: number;
   builtAt: number;
@@ -92,8 +102,11 @@ export interface Contract {
   itemName: string;
   quantity: number;
   dueAt: number;
+  expiresAt: number;
   reward: number;
+  xpReward: number;
   completed: boolean;
+  description?: string;
 }
 
 export interface MarketListing {
@@ -112,7 +125,8 @@ export interface Farm {
   maxPlots: number;
   animals: AnimalInstance[];
   maxAnimals: number;
-  buildings: Record<string, BuildingInstance>;
+  buildings: BuildingInstance[];
+  maxBuildings: number;
   upgrades: Record<string, number>;
   storage: Record<string, number>;
   maxStorage: number;

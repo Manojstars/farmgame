@@ -63,6 +63,8 @@ export const cloudFunctionsService = {
   },
 };
 
+/**
+ * Future Cloud Functions Notes:
  * 
  * Installation:
  * 1. Navigate to functions folder: cd functions

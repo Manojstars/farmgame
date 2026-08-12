@@ -48,7 +48,7 @@ export const InventoryScreen = () => {
     const animalInfo = Object.values(ANIMALS).find(a => a.productName === itemName);
 
     const info = cropInfo || animalInfo;
-    const value = info ? (cropInfo ? cropInfo.harvestValue : animalInfo!.productionValue) : 0;
+    const value = info ? (cropInfo ? cropInfo.harvestValue : animalInfo!.productValue) : 0;
 
     return (
       <View key={itemName} style={styles.inventoryItem}>
@@ -75,15 +75,15 @@ export const InventoryScreen = () => {
   const totalValue = Object.entries(farm.storage).reduce((sum, [item, qty]) => {
     const cropInfo = Object.values(CROPS).find(c => c.name === item);
     const animalInfo = Object.values(ANIMALS).find(a => a.productName === item);
-    const value = cropInfo ? cropInfo.harvestValue : animalInfo?.productionValue || 0;
+    const value = cropInfo ? cropInfo.harvestValue : animalInfo?.productValue || 0;
     return sum + qty * value;
   }, 0);
 
   const items = Object.entries(farm.storage)
     .filter(([_, qty]) => qty > 0)
     .sort(([aItem, aQty], [bItem, bQty]) => {
-      const aValue = aQty * ((Object.values(CROPS).find(c => c.name === aItem)?.harvestValue || 0) || (Object.values(ANIMALS).find(a => a.productName === aItem)?.productionValue || 0));
-      const bValue = bQty * ((Object.values(CROPS).find(c => c.name === bItem)?.harvestValue || 0) || (Object.values(ANIMALS).find(a => a.productName === bItem)?.productionValue || 0));
+      const aValue = aQty * ((Object.values(CROPS).find(c => c.name === aItem)?.harvestValue || 0) || (Object.values(ANIMALS).find(a => a.productName === aItem)?.productValue || 0));
+      const bValue = bQty * ((Object.values(CROPS).find(c => c.name === bItem)?.harvestValue || 0) || (Object.values(ANIMALS).find(a => a.productName === bItem)?.productValue || 0));
       return bValue - aValue;
     });
 

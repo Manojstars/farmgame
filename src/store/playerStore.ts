@@ -101,7 +101,7 @@ export const usePlayerStore = create<PlayerStore>()(
     }),
     {
       name: 'player-store',
-      storage: AsyncStorage,
+      storage: AsyncStorage as any,
       version: 1,
     }
   )

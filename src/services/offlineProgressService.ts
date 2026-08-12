@@ -7,7 +7,7 @@
  */
 
 import { firestore, auth } from './firebaseService';
-import { playerStore } from '../store/playerStore';
+import { usePlayerStore } from '../store/playerStore';
 
 interface OfflineProgressResult {
   cropsHarvested: number;
@@ -95,14 +95,29 @@ export class OfflineProgressService {
    * Apply offline progress to local store
    */
   applyOfflineProgress(result: OfflineProgressResult) {
-    const state = playerStore.getState();
+    const state = usePlayerStore.getState();
     
-    if (result.coinsEarned > 0 || result.energyRestored > 0) {
-      playerStore.setState({
-        coins: state.coins + result.coinsEarned,
-        energy: Math.min(state.maxEnergy, state.energy + result.energyRestored),
+    if (state.player && (result.coinsEarned > 0 || result.energyRestored > 0)) {
+      usePlayerStore.setState({
+        player: {
+          ...state.player,
+          coins: state.player.coins + result.coinsEarned,
+          energy: Math.min(state.player.maxEnergy, state.player.energy + result.energyRestored),
+          updatedAt: Date.now(),
+        },
       });
     }
+  }
+
+  /**
+   * Calculate and apply offline progress in one call
+   */
+  async syncOfflineProgress(): Promise<void> {
+    const state = usePlayerStore.getState();
+    if (!state.player) return;
+
+    const result = await this.calculateOfflineProgress(state.player.lastLogin || Date.now());
+    this.applyOfflineProgress(result);
   }
 }
 

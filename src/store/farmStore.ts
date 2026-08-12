@@ -193,7 +193,7 @@ export const useFarmStore = create<FarmStore>()(
     }),
     {
       name: 'farm-store',
-      storage: AsyncStorage,
+      storage: AsyncStorage as any,
       version: 1,
     }
   )

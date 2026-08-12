@@ -32,7 +32,7 @@ const defaultConfig: GameConfig = {
   storageCapacity: 500,
 };
 
-export const useRemoteConfigStore = create<RemoteConfigStore>((set) => ({
+export const useRemoteConfigStore = create<RemoteConfigStore>((set, get) => ({
   config: defaultConfig,
   isLoading: false,
 
@@ -79,7 +79,7 @@ export const useRemoteConfigStore = create<RemoteConfigStore>((set) => ({
   },
 
   getConfigValue: (key: string, defaultValue: any) => {
-    return (useRemoteConfigStore.getState().config as any)[key] || defaultValue;
+    return (get().config as any)[key] || defaultValue;
   },
 }));
 

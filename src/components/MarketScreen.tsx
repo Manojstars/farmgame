@@ -13,13 +13,13 @@ import { useFarmStore } from '../store/farmStore';
 import { useMarketStore } from '../store/marketStore';
 import { useUIStore } from '../store/uiStore';
 import { CROPS, ANIMALS } from '../utils/constants';
-import { economyService } from '../services/economyService';
+import EconomyService from '../services/economyService';
 import { formatNumber } from '../utils/helpers';
 
 export const MarketScreen = () => {
   const player = usePlayerStore((state) => state.player);
   const farm = useFarmStore((state) => state.farm);
-  const listings = useMarketStore((state) => state.listings);
+  const listings = useMarketStore((state) => state.marketListings);
   const updateStorage = useFarmStore((state) => state.updateStorage);
   const updateCoins = usePlayerStore((state) => state.updateCoins);
   const updateXP = usePlayerStore((state) => state.updateXP);
@@ -51,7 +51,7 @@ export const MarketScreen = () => {
     // Calculate sale price (base price + market fluctuation)
     const cropInfo = Object.values(CROPS).find(c => c.name === itemName);
     const animalInfo = Object.values(ANIMALS).find(a => a.productName === itemName);
-    const basePrice = cropInfo ? cropInfo.harvestValue : animalInfo?.productionValue || 100;
+    const basePrice = cropInfo ? cropInfo.harvestValue : animalInfo?.productValue || 100;
     
     const salePrice = Math.round(basePrice * quantity * 0.95); // 5% marketplace fee
 
@@ -94,7 +94,7 @@ export const MarketScreen = () => {
   const getItemPrice = (itemName: string) => {
     const cropInfo = Object.values(CROPS).find(c => c.name === itemName);
     const animalInfo = Object.values(ANIMALS).find(a => a.productName === itemName);
-    return cropInfo ? cropInfo.harvestValue : animalInfo?.productionValue || 100;
+    return cropInfo ? cropInfo.harvestValue : animalInfo?.productValue || 100;
   };
 
   // Get inventory items for selling
@@ -108,15 +108,24 @@ export const MarketScreen = () => {
     }));
 
   // Available items to buy
-  const availableItems = [
-    ...Object.values(CROPS).slice(0, 3),
-    ...Object.values(ANIMALS).map(a => ({ name: a.productName, value: a.productionValue })),
-  ].map(item => ({
-    name: 'name' in item ? item.name : item.name,
-    price: 'value' in item ? item.value : 'harvestValue' in item ? item.harvestValue : 100,
+  const cropsData = Object.values(CROPS).slice(0, 3).map(crop => ({
+    name: crop.name,
+    price: crop.harvestValue,
   }));
 
-  const sections = [
+  const animalsData = Object.values(ANIMALS).map(animal => ({
+    name: animal.productName,
+    price: animal.productValue,
+  }));
+
+  const availableItems = [...cropsData, ...animalsData];
+
+  interface SectionData {
+    title: string;
+    data: Array<{ name: string; [key: string]: any }>;
+  }
+
+  const sections: SectionData[] = [
     {
       title: 'Your Items (Sell)',
       data: inventoryItems.map(item => ({

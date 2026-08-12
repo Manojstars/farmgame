@@ -23,6 +23,10 @@ export const GAME_CONFIG = {
   ENERGY_COST_HARVEST: 2,
   ENERGY_COST_FEED_ANIMAL: 1,
   ENERGY_COST_BUILD: 5,
+  ENERGY_COST_ACTION: 2,
+
+  // Storage
+  STORAGE_CAPACITY_BASE: 1000,
 
   // Time values (in milliseconds)
   ENERGY_REFILL_TIME: 3600000, // 1 hour
@@ -111,6 +115,8 @@ export const ANIMALS = {
     xpReward: 3,
     unlockedAtLevel: 1,
     maxHealth: 100,
+    purchaseCost: 50,
+    emoji: '🐔',
   },
   COW: {
     id: 'cow',
@@ -123,6 +129,8 @@ export const ANIMALS = {
     xpReward: 8,
     unlockedAtLevel: 1,
     maxHealth: 150,
+    purchaseCost: 100,
+    emoji: '🐄',
   },
   SHEEP: {
     id: 'sheep',
@@ -135,6 +143,8 @@ export const ANIMALS = {
     xpReward: 6,
     unlockedAtLevel: 2,
     maxHealth: 120,
+    purchaseCost: 75,
+    emoji: '🐑',
   },
   PIG: {
     id: 'pig',
@@ -147,6 +157,8 @@ export const ANIMALS = {
     xpReward: 20,
     unlockedAtLevel: 5,
     maxHealth: 180,
+    purchaseCost: 150,
+    emoji: '🐷',
   },
   HORSE: {
     id: 'horse',
@@ -159,6 +171,8 @@ export const ANIMALS = {
     xpReward: 40,
     unlockedAtLevel: 10,
     maxHealth: 200,
+    purchaseCost: 250,
+    emoji: '🐴',
   },
 };
 
@@ -167,51 +181,97 @@ export const BUILDINGS = {
   SILO: {
     id: 'silo',
     name: 'Silo',
-    type: 'silo',
+    type: 'silo' as const,
     level: 1,
     maxLevel: 5,
     buildCost: 500,
     buildTimeSeconds: 300,
     capacity: 1000,
+    unlockedAtLevel: 1,
+    storageBonus: 200,
+    animalSlotsBonus: undefined,
+    plotsBonus: undefined,
+    emoji: '🏭',
+    description: 'Increase storage capacity for crops',
   },
   MILL: {
     id: 'mill',
     name: 'Mill',
-    type: 'mill',
+    type: 'mill' as const,
     level: 1,
     maxLevel: 3,
     buildCost: 1000,
     buildTimeSeconds: 600,
-    processingRatio: 2, // 2:1 conversion
+    processingRatio: 2,
+    unlockedAtLevel: 5,
+    storageBonus: undefined,
+    animalSlotsBonus: undefined,
+    plotsBonus: undefined,
+    emoji: '⚙️',
+    description: 'Process crops into valuable goods',
+    capacity: undefined,
   },
   MARKET_STALL: {
     id: 'market_stall',
     name: 'Market Stall',
-    type: 'market',
+    type: 'market' as const,
     level: 1,
     maxLevel: 1,
     buildCost: 200,
     buildTimeSeconds: 60,
+    unlockedAtLevel: 3,
+    storageBonus: undefined,
+    animalSlotsBonus: undefined,
+    plotsBonus: undefined,
+    emoji: '🛒',
+    description: 'Sell items at better prices',
+    capacity: undefined,
   },
   WAREHOUSE: {
     id: 'warehouse',
     name: 'Warehouse',
-    type: 'warehouse',
+    type: 'warehouse' as const,
     level: 1,
     maxLevel: 10,
     buildCost: 750,
     buildTimeSeconds: 450,
     capacity: 1500,
+    unlockedAtLevel: 10,
+    storageBonus: 300,
+    animalSlotsBonus: undefined,
+    plotsBonus: undefined,
+    emoji: '🏢',
+    description: 'Large storage facility for inventory',
   },
-};
+} as const;
 
 // Gem Packages
-export const GEM_PACKAGES = [
-  { gems: 50, price: 0.99, bonus: 0 },
-  { gems: 500, price: 4.99, bonus: 50 },
-  { gems: 2500, price: 19.99, bonus: 500 },
-  { gems: 6500, price: 49.99, bonus: 1500 },
-];
+export const GEM_PACKAGES = {
+  SMALL: {
+    gems: 50,
+    price: 99, // in cents
+    bonus: 0,
+    pricePerGem: 1980, // price per gem in mills
+  },
+  MEDIUM: {
+    gems: 500,
+    price: 499,
+    bonus: 50,
+    pricePerGem: 998,
+  },
+  LARGE: {
+    gems: 2500,
+    price: 1999,
+    bonus: 500,
+    pricePerGem: 800,
+  },
+  MEGA: {
+    gems: 6500,
+    price: 4999,
+    bonus: 1500,
+    pricePerGem: 769,
+  },
+} as const;
 
 // Notification Types
 export enum NotificationType {
@@ -227,8 +287,12 @@ export enum GameState {
   LOGIN = 'login',
   HOME = 'home',
   FARM = 'farm',
+  ANIMALS = 'animals',
+  BUILDINGS = 'buildings',
   MARKET = 'market',
   CONTRACTS = 'contracts',
   SHOP = 'shop',
+  UPGRADES = 'upgrades',
+  INVENTORY = 'inventory',
   SETTINGS = 'settings',
 }

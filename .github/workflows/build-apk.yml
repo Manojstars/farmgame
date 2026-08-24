@@ -32,33 +32,42 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Create minimal Android gradle project
+      - name: Create React Native Android project
         run: |
-          echo "Creating minimal Android gradle project from scratch..."
+          echo "Creating React Native Android template..."
           
-          # Create directory structure
-          mkdir -p android/app/src/main/java/com/farmgame/app
-          mkdir -p android/app/src/main/res/values
-          mkdir -p android/gradle/wrapper
-          mkdir -p android/.gradle
+          # Create temp directory
+          mkdir -p rn-temp
+          cd rn-temp
           
-          # Create gradle-wrapper.properties
-          cat > android/gradle/wrapper/gradle-wrapper.properties << 'EOF'
-          distributionBase=GRADLE_USER_HOME
-          distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip
-          networkTimeout=10000
-          validateDistributionUrl=true
-          zipStoreBase=GRADLE_USER_HOME
-          zipStorePath=wrapper/dists
-          EOF
+          # Run react-native init - it will show iOS error but Android should still work
+          # Use set +e to allow script to continue even if command "fails"
+          set +e
+          npx react-native@0.74.0 init TemplateApp --npm 2>&1
+          RESULT=$?
+          set -e
           
-          # Download gradle wrapper script
-          curl -L -o android/gradlew https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradlew 2>/dev/null || echo "Could not download gradlew script"
-          chmod +x android/gradlew || true
+          echo "react-native init exited with code: $RESULT"
           
-          # Verify we can at least try gradle
-          echo "Gradle setup attempt complete"
+          cd ..
+          
+          # Check if android directory exists, regardless of exit code
+          sleep 2
+          
+          echo "Checking for android directory..."
+          if [ -d "rn-temp/TemplateApp/android" ]; then
+            echo "✓ Android directory found!"
+            ls -la rn-temp/TemplateApp/android | head -10
+            mv rn-temp/TemplateApp/android ./
+            rm -rf rn-temp
+            echo "✓ Ready to build"
+          else
+            echo "✗ Android directory NOT found"
+            echo "Contents of rn-temp/TemplateApp:"
+            find rn-temp/TemplateApp -maxdepth 2 -type d 2>/dev/null | head -20 || echo "Cannot list contents"
+            rm -rf rn-temp
+            exit 1
+          fi
       
       - name: Verify gradle wrapper
         run: |

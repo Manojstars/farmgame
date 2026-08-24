@@ -40,20 +40,25 @@ jobs:
           mkdir -p rn-template
           cd rn-template
           
-          # Use react-native init to create template (no Expo, no install flag)
-          npx react-native@0.74.0 init TemplateApp --npm 2>&1 || \
-          npx react-native init TemplateApp --npm 2>&1 || true
+          # Use react-native init to create template
+          # It will fail on iOS pods install (Linux can't do that) but will still create Android
+          echo "Running react-native init (ignore iOS pods errors)..."
+          npx react-native@0.74.0 init TemplateApp --npm 2>&1 || echo "react-native init completed (may have iOS error, that's OK)"
           
           cd ..
           
-          # Extract android directory
+          # Check if android directory was created despite any errors
+          sleep 2  # Wait a moment for directory creation
+          
           if [ -d "rn-template/TemplateApp/android" ]; then
-            echo "✓ Android template created"
+            echo "✓ Android directory found"
             mv rn-template/TemplateApp/android ./
             rm -rf rn-template
+            echo "✓ Android template ready"
           else
-            echo "✗ Android template creation failed"
-            ls -la rn-template/TemplateApp 2>/dev/null || echo "Template directory missing"
+            echo "✗ Android directory not found"
+            echo "Contents of rn-template/TemplateApp:"
+            ls -la rn-template/TemplateApp 2>/dev/null || echo "TemplateApp directory not found"
             rm -rf rn-template
             exit 1
           fi

@@ -1,5 +1,4 @@
 name: Build APK
-
 on:
   push:
     branches: [ agents/vscode-dev-infrastructure-setup ]
@@ -21,8 +20,11 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
       
-      - name: Setup Expo
-        run: npm install -g expo-cli
+      - name: Run TypeScript check
+        run: npm run tsc
+      
+      - name: Run tests  
+        run: npm test -- --runInBand
       
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -30,64 +32,61 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Setup Android NDK & SDK
-        run: |
-          # Use GitHub's Android SDK tools
-          echo "Android SDK is already available via android-sdk action"
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls -la "$ANDROID_HOME/platforms/" 2>/dev/null | head -5 || echo "Checking SDK..."
-          
       - name: Create React Native Android project
         run: |
-          # Create a bare React Native app (without --typescript flag)
-          echo "Creating bare React Native Android project..."
-          npx react-native@0.74.0 init FarmGameBare --npm 2>&1 || \
-          npx react-native@latest init FarmGameBare --npm
+          echo "Creating React Native Android template..."
           
-          # Check if android was created
-          if [ ! -d "FarmGameBare/android" ]; then
-            echo "ERROR: Failed to generate android directory"
+          # Create temp directory for RN template
+          mkdir -p rn-template
+          cd rn-template
+          
+          # Use react-native init to create template (no Expo)
+          npx react-native@0.74.0 init TemplateApp --npm --install=false 2>&1 || \
+          npx react-native init TemplateApp --npm --install=false 2>&1 || true
+          
+          cd ..
+          
+          # Extract android directory
+          if [ -d "rn-template/TemplateApp/android" ]; then
+            echo "✓ Android template created"
+            mv rn-template/TemplateApp/android ./
+            rm -rf rn-template
+          else
+            echo "✗ Android template creation failed"
+            ls -la rn-template/TemplateApp 2>/dev/null || echo "Template directory missing"
+            rm -rf rn-template
             exit 1
           fi
-          
-          # Move android directory to project root
-          mv FarmGameBare/android ./
-          
-          # Verify structure
-          echo "Android directory structure:"
-          ls -la ./android/ | head -10
-          
-          # Verify gradle wrapper
+      
+      - name: Verify gradle wrapper
+        run: |
           if [ ! -f "android/gradlew" ]; then
             echo "ERROR: gradlew not found"
             exit 1
           fi
-          
           chmod +x android/gradlew
-          
-          # Keep only what we need from FarmGameBare if it still exists
-          rm -rf FarmGameBare 2>/dev/null || true
-          
-          echo "Android setup complete"
+          ls -la android/gradlew
       
-      - name: Setup Gradle
+      - name: Build APK with Gradle
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew --version
           
-      - name: Build Debug APK
-        run: |
-          cd android
-          # First clean
-          ./gradlew clean
-          # Then build
-          ./gradlew assembleDebug --stacktrace --info 2>&1 | tail -200
+          echo "Building Debug APK..."
+          ./gradlew assembleDebug --stacktrace 2>&1
+          
+          echo ""
+          echo "Checking for APK..."
+          if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
+            echo "✅ APK built successfully!"
+            ls -lh app/build/outputs/apk/debug/app-debug.apk
+            md5sum app/build/outputs/apk/debug/app-debug.apk
+          else
+            echo "❌ APK not found"
+            find . -name "*.apk" -type f || echo "No APK files found"
+            exit 1
+          fi
       
-      - name: Check for APK
-        run: find . -name "app-debug.apk" -type f
-      
-      - name: Upload APK as artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         if: success()
         with:

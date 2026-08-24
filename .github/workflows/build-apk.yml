@@ -32,40 +32,30 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Create React Native Android project
+      - name: Get React Native Android template from GitHub
         run: |
-          echo "Creating React Native Android template..."
+          echo "Downloading React Native template from GitHub repository..."
           
-          # Create temp directory
-          mkdir -p rn-temp
-          cd rn-temp
+          # Clone the facebook/react-native repository and extract the template
+          mkdir -p rn-src
+          cd rn-src
           
-          # Run react-native init - it will show iOS error but Android should still work
-          # Use set +e to allow script to continue even if command "fails"
-          set +e
-          npx react-native@0.74.0 init TemplateApp --npm 2>&1
-          RESULT=$?
-          set -e
-          
-          echo "react-native init exited with code: $RESULT"
+          # Clone without history
+          git clone --depth 1 --branch 0.74.0 https://github.com/facebook/react-native.git . 2>&1 || \
+          git clone --depth 1 https://github.com/facebook/react-native.git . 2>&1 || exit 1
           
           cd ..
           
-          # Check if android directory exists, regardless of exit code
-          sleep 2
-          
-          echo "Checking for android directory..."
-          if [ -d "rn-temp/TemplateApp/android" ]; then
-            echo "✓ Android directory found!"
-            ls -la rn-temp/TemplateApp/android | head -10
-            mv rn-temp/TemplateApp/android ./
-            rm -rf rn-temp
-            echo "✓ Ready to build"
+          # Check if template/android exists in the repo
+          if [ -d "rn-src/template/android" ]; then
+            echo "✓ Android template found in repository"
+            cp -r rn-src/template/android ./
+            rm -rf rn-src
+            echo "✓ Android template ready"
+            chmod +x android/gradlew 2>/dev/null || true
           else
-            echo "✗ Android directory NOT found"
-            echo "Contents of rn-temp/TemplateApp:"
-            find rn-temp/TemplateApp -maxdepth 2 -type d 2>/dev/null | head -20 || echo "Cannot list contents"
-            rm -rf rn-temp
+            echo "✗ Template not found at expected location"
+            find rn-src -name "android" -type d 2>/dev/null | head -5
             exit 1
           fi
       

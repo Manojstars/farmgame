@@ -1,0 +1,44 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ agents/vscode-dev-infrastructure-setup ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      
+      - name: Setup Expo
+        run: npm install -g expo-cli
+      
+      - name: Prebuild Android
+        run: npx expo prebuild --clean --platform android --no-install
+      
+      - name: Build with Gradle
+        run: |
+          cd android
+          ./gradlew assembleDebug
+      
+      - name: Check for APK
+        run: find . -name "app-debug.apk" -type f
+      
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v3
+        if: success()
+        with:
+          name: game-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7

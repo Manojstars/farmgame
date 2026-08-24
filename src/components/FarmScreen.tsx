@@ -222,7 +222,7 @@ export const FarmScreen = () => {
   const availableCrops = getAvailableCrops();
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentScreen('home')}>
@@ -234,6 +234,7 @@ export const FarmScreen = () => {
         </View>
       </View>
 
+      <ScrollView style={styles.scrollContent}>
       {/* Crop Selection */}
       <View style={styles.cropsSection}>
         <Text style={styles.sectionTitle}>Select Crop to Plant</Text>
@@ -275,7 +276,8 @@ export const FarmScreen = () => {
           ))}
         </ScrollView>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -283,6 +285,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#2d5016',

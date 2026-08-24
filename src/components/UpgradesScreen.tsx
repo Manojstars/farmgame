@@ -212,7 +212,7 @@ export const UpgradesScreen = () => {
   ).length;
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentScreen('home')}>
@@ -226,6 +226,7 @@ export const UpgradesScreen = () => {
         </View>
       </View>
 
+      <ScrollView style={styles.scrollContent}>
       {/* Progress Bar */}
       <View style={styles.progressSection}>
         <View style={styles.progressBar}>
@@ -261,7 +262,8 @@ export const UpgradesScreen = () => {
           • Level up to unlock new upgrades
         </Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -269,6 +271,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#2d5016',

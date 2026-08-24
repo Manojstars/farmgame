@@ -19,6 +19,7 @@ Farm Life uses Firebase as the backend for:
 - Data is isolated and cleared between sessions
 - Perfect for testing without affecting production
 - Eliminates risk of corrupting production data
+- **Required when on a corporate VPN that blocks googleapis.com**
 
 ### Production
 - Uses actual Firebase services
@@ -26,6 +27,78 @@ Farm Life uses Firebase as the backend for:
 - Cloud synchronization
 - Live game balance
 - DO NOT use for testing
+
+---
+
+## Corporate Network / VPN Issue
+
+If Firebase authentication fails with:
+
+```
+FirebaseError: Firebase: Error (auth/network-request-failed)
+```
+
+and DNS lookups for `identitytoolkit.googleapis.com` or `securetoken.googleapis.com` fail, this
+means the corporate VPN or DNS is blocking Firebase endpoints.
+
+**This is a network restriction — not a Firebase configuration bug.**
+
+### Solution: Use Firebase Emulators
+
+The Firebase Emulator Suite runs entirely on `localhost`. The Android emulator reaches the host
+machine via `10.0.2.2`, so no external internet is needed.
+
+#### Step 1 — Enable emulator mode in `.env`
+
+```bash
+EXPO_PUBLIC_USE_FIREBASE_EMULATOR=true
+```
+
+Or use the VS Code task: **"Farm Life: Enable Emulator Mode"**
+
+#### Step 2 — Start the emulators
+
+```powershell
+.\scripts\start-emulator.ps1
+```
+
+Or use the VS Code task: **"Farm Life: Firebase Emulator (Auth + Firestore)"**
+
+Emulators start on:
+- **Auth**:      `0.0.0.0:9099`  → Android emulator uses `http://10.0.2.2:9099`
+- **Firestore**: `0.0.0.0:8080`  → Android emulator uses `10.0.2.2:8080`
+- **UI**:        `localhost:4000` → open in browser to inspect data
+
+#### Step 3 — Rebuild the APK
+
+The `EXPO_PUBLIC_USE_FIREBASE_EMULATOR` variable is baked in at build time:
+
+```bash
+npx expo run:android
+```
+
+Or use the VS Code task: **"Farm Life: Build Android Debug APK"**
+
+#### Step 4 — Verify
+
+In Android logcat you should see:
+
+```
+[Firebase] Using LOCAL emulators — Auth: 10.0.2.2:9099, Firestore: 10.0.2.2:8080
+```
+
+#### Switching back to production
+
+```bash
+# In .env:
+EXPO_PUBLIC_USE_FIREBASE_EMULATOR=false
+```
+
+Or use the VS Code task: **"Farm Life: Disable Emulator Mode"**
+
+Then rebuild the APK.
+
+---
 
 ## Setting Up Firebase Emulator
 
@@ -80,19 +153,17 @@ The emulator will start on:
 
 ### Connect App to Local Firebase
 
-When `APP_ENV=development` is set in `.env`, the app automatically connects to:
-- Local Firebase Emulator (not production)
-- Local AsyncStorage
-- Development configurations
+The app connects to the local emulator when `EXPO_PUBLIC_USE_FIREBASE_EMULATOR=true` is set in `.env`.
 
-In `src/services/firebaseService.ts`, check:
+In `src/services/firebaseService.ts`:
 ```typescript
-if (process.env.APP_ENV === 'development') {
-  // Connect to emulator
-  connectAuthEmulator(auth, 'http://localhost:9099');
-  connectFirestoreEmulator(db, 'localhost', 8080);
+if (process.env.EXPO_PUBLIC_USE_FIREBASE_EMULATOR === 'true') {
+  connectAuthEmulator(auth, 'http://10.0.2.2:9099', { disableWarnings: true });
+  connectFirestoreEmulator(firestore, '10.0.2.2', 8080);
 }
 ```
+
+`10.0.2.2` is the Android emulator's special alias for the host machine (`localhost`).
 
 ## Firestore Database Structure
 

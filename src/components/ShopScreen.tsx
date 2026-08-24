@@ -111,7 +111,7 @@ export const ShopScreen = () => {
   const packages = Object.entries(GEM_PACKAGES);
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentScreen('home')}>
@@ -123,6 +123,7 @@ export const ShopScreen = () => {
         </View>
       </View>
 
+      <ScrollView style={styles.scrollContent}>
       {/* Current Gems */}
       <View style={styles.currentGemsSection}>
         <Text style={styles.currentGemsLabel}>Your Gems</Text>
@@ -197,7 +198,8 @@ export const ShopScreen = () => {
           per-gem pricing
         </Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -205,6 +207,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#2d5016',

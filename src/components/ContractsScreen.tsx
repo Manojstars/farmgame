@@ -138,7 +138,7 @@ export const ContractsScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentScreen('home')}>
@@ -150,6 +150,7 @@ export const ContractsScreen = () => {
         </View>
       </View>
 
+      <ScrollView style={styles.scrollContent}>
       {/* Active Contracts */}
       {active.length > 0 ? (
         <View style={styles.section}>
@@ -190,7 +191,8 @@ export const ContractsScreen = () => {
           ⭐ Complete contracts to level up faster
         </Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -198,6 +200,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#2d5016',

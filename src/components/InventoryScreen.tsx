@@ -88,7 +88,7 @@ export const InventoryScreen = () => {
     });
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentScreen('home')}>
@@ -102,6 +102,7 @@ export const InventoryScreen = () => {
         </View>
       </View>
 
+      <ScrollView style={styles.scrollContent}>
       {/* Storage Status */}
       <View style={styles.storageSection}>
         <Text style={styles.sectionTitle}>Storage</Text>
@@ -175,7 +176,8 @@ export const InventoryScreen = () => {
           🎁 Complete contracts to earn bonus rewards
         </Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -183,6 +185,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#2d5016',

@@ -163,7 +163,7 @@ export const BuildingsScreen = () => {
   const storagePercent = Math.round((storageUsed / storageCapacity) * 100);
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentScreen('home')}>
@@ -175,6 +175,7 @@ export const BuildingsScreen = () => {
         </View>
       </View>
 
+      <ScrollView style={styles.scrollContent}>
       {/* Storage Status */}
       <View style={styles.storageSection}>
         <Text style={styles.sectionTitle}>Storage Status</Text>
@@ -226,7 +227,8 @@ export const BuildingsScreen = () => {
           • <Text style={styles.tipBold}>Warehouses</Text> increase overall storage capacity
         </Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -234,6 +236,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#2d5016',

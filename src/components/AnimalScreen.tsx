@@ -296,7 +296,7 @@ export const AnimalScreen = () => {
   const animalSlots = Array.from({ length: maxSlots }, (_, i) => i);
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setCurrentScreen('home')}>
@@ -310,6 +310,7 @@ export const AnimalScreen = () => {
         </View>
       </View>
 
+      <ScrollView style={styles.scrollContent}>
       {/* Animal Shop */}
       <View style={styles.shopSection}>
         <Text style={styles.sectionTitle}>Buy Animals</Text>
@@ -353,7 +354,8 @@ export const AnimalScreen = () => {
         <Text style={styles.statText}>📦 Collect products when ready</Text>
         <Text style={styles.statText}>💡 Different animals produce different items</Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -361,6 +363,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  scrollContent: {
+    flex: 1,
   },
   header: {
     backgroundColor: '#2d5016',

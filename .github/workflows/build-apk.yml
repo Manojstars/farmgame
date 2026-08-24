@@ -102,9 +102,51 @@ jobs:
           distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip
           GRADLE_PROPS
           
-          # Download official gradle wrapper script
-          curl -s -L -o android/gradlew https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradlew
-          curl -s -L -o android/gradlew.bat https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradlew.bat
+          # Create a proper gradle wrapper script
+          cat > android/gradlew << 'GRADLEW_END'
+#!/bin/bash
+# Gradle wrapper script
+# This script downloads gradle if needed and runs it
+#
+# Gradle is a build automation tool for multi-language software development.
+# For more information about Gradle, please visit https://gradle.org/
+#
+
+GRADLE_HOME="${GRADLE_HOME:-$HOME/.gradle}"
+GRADLE_VERSION="8.5"
+GRADLE_SHA="b84d82d980bb9968b94b56be13106a60ec70e5bc"
+GRADLE_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
+GRADLE_ZIP="${GRADLE_HOME}/wrapper/dists/gradle-${GRADLE_VERSION}/gradle-${GRADLE_VERSION}-bin.zip"
+GRADLE_BIN="${GRADLE_HOME}/gradle-${GRADLE_VERSION}/bin/gradle"
+
+# Create gradle home if needed
+mkdir -p "${GRADLE_HOME}/wrapper/dists"
+
+# Download gradle if not present
+if [ ! -f "$GRADLE_BIN" ]; then
+  echo "Downloading Gradle $GRADLE_VERSION..."
+  mkdir -p "$(dirname "$GRADLE_ZIP")"
+  curl -L -o "$GRADLE_ZIP" "$GRADLE_URL" 2>/dev/null || {
+    echo "ERROR: Failed to download Gradle"
+    exit 1
+  }
+  
+  # Extract gradle
+  echo "Extracting Gradle..."
+  unzip -q "$GRADLE_ZIP" -d "${GRADLE_HOME}/wrapper/dists/" || {
+    echo "ERROR: Failed to extract Gradle"
+    exit 1
+  }
+  
+  # Move to expected location
+  mv "${GRADLE_HOME}/wrapper/dists/gradle-${GRADLE_VERSION}" "${GRADLE_HOME}/" 2>/dev/null || true
+  rm -f "$GRADLE_ZIP"
+fi
+
+# Run gradle
+exec "$GRADLE_BIN" "$@"
+GRADLEW_END
+          
           chmod +x android/gradlew
           
           echo "✓ Android project created"

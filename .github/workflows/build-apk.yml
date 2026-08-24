@@ -34,28 +34,34 @@ jobs:
       
       - name: Get React Native Android template from GitHub
         run: |
-          echo "Downloading React Native template from GitHub repository..."
+          echo "Downloading React Native template from GitHub..."
           
-          # Clone the facebook/react-native repository and extract the template
           mkdir -p rn-src
           cd rn-src
           
-          # Clone without history
-          git clone --depth 1 --branch 0.74.0 https://github.com/facebook/react-native.git . 2>&1 || \
+          # Clone React Native repo - try default branch first
           git clone --depth 1 https://github.com/facebook/react-native.git . 2>&1 || exit 1
           
           cd ..
           
-          # Check if template/android exists in the repo
+          # The template directory should be at template/android
           if [ -d "rn-src/template/android" ]; then
-            echo "✓ Android template found in repository"
+            echo "✓ Android template found"
             cp -r rn-src/template/android ./
             rm -rf rn-src
-            echo "✓ Android template ready"
-            chmod +x android/gradlew 2>/dev/null || true
+            
+            # Verify gradlew exists
+            if [ -f "android/gradlew" ]; then
+              echo "✓ Gradle wrapper found"
+              chmod +x android/gradlew
+            else
+              echo "⚠ Gradle wrapper not found, continuing anyway..."
+            fi
           else
-            echo "✗ Template not found at expected location"
+            echo "✗ Template/android not found"
+            echo "Looking for android directories in repo..."
             find rn-src -name "android" -type d 2>/dev/null | head -5
+            rm -rf rn-src
             exit 1
           fi
       

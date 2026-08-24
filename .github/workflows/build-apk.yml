@@ -32,35 +32,35 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Get React Native Android template from GitHub
+      - name: Get React Native Android app from GitHub
         run: |
-          echo "Downloading React Native template from GitHub..."
+          echo "Downloading React Native Android app..."
           
           mkdir -p rn-src
           cd rn-src
           
-          # Clone React Native repo - try default branch first
           git clone --depth 1 https://github.com/facebook/react-native.git . 2>&1 || exit 1
           
           cd ..
           
-          # The template directory should be at template/android
-          if [ -d "rn-src/template/android" ]; then
-            echo "✓ Android template found"
-            cp -r rn-src/template/android ./
+          # Use the rn-tester Android app as a base
+          if [ -d "rn-src/packages/rn-tester/android" ]; then
+            echo "✓ Found rn-tester Android app"
+            cp -r rn-src/packages/rn-tester/android ./
             rm -rf rn-src
             
-            # Verify gradlew exists
+            # Verify gradlew
             if [ -f "android/gradlew" ]; then
-              echo "✓ Gradle wrapper found"
+              echo "✓ Gradle wrapper ready"
               chmod +x android/gradlew
             else
-              echo "⚠ Gradle wrapper not found, continuing anyway..."
+              echo "✗ No gradlew found"
+              ls -la android/ | head -10
+              exit 1
             fi
           else
-            echo "✗ Template/android not found"
-            echo "Looking for android directories in repo..."
-            find rn-src -name "android" -type d 2>/dev/null | head -5
+            echo "✗ rn-tester not found"
+            ls rn-src/packages/ | grep -i android || echo "No android packages found"
             rm -rf rn-src
             exit 1
           fi

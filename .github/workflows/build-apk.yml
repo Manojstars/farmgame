@@ -32,64 +32,95 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Get React Native Android app from GitHub
+      - name: Create minimal Android gradle project
         run: |
-          echo "Downloading React Native Android app..."
+          echo "Creating minimal Android project..."
           
-          mkdir -p rn-src
-          cd rn-src
+          mkdir -p android/{app/src/main/{java/com/farmgame,res/{values,layout}},gradle/wrapper}
           
-          git clone --depth 1 https://github.com/facebook/react-native.git . 2>&1 || exit 1
+          # Create build.gradle (root)
+          cat > android/build.gradle << 'GRADLE_ROOT'
+          buildscript {
+              ext {
+                  buildToolsVersion = "34.0.0"
+                  compileSdkVersion = 34
+              }
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath("com.android.tools.build:gradle:7.6.0")
+              }
+          }
           
-          cd ..
+          allprojects {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          GRADLE_ROOT
           
-          # Use the rn-tester Android app as a base
-          if [ -d "rn-src/packages/rn-tester/android" ]; then
-            echo "✓ Found rn-tester Android app"
-            cp -r rn-src/packages/rn-tester/android ./
-            rm -rf rn-src
-            
-            # Verify gradlew
-            if [ -f "android/gradlew" ]; then
-              echo "✓ Gradle wrapper ready"
-              chmod +x android/gradlew
-            else
-              echo "✗ No gradlew found"
-              ls -la android/ | head -10
-              exit 1
-            fi
-          else
-            echo "✗ rn-tester not found"
-            ls rn-src/packages/ | grep -i android || echo "No android packages found"
-            rm -rf rn-src
-            exit 1
-          fi
-      
-      - name: Verify gradle wrapper
-        run: |
-          if [ ! -f "android/gradlew" ]; then
-            echo "ERROR: gradlew not found"
-            exit 1
-          fi
+          # Create build.gradle (app)
+          cat > android/app/build.gradle << 'GRADLE_APP'
+          apply plugin: "com.android.application"
+          
+          android {
+              compileSdkVersion 34
+              buildToolsVersion "34.0.0"
+              namespace "com.farmgame.app"
+          
+              defaultConfig {
+                  applicationId "com.farmgame.app"
+                  minSdkVersion 21
+                  targetSdkVersion 34
+                  versionCode 1
+                  versionName "1.0.0"
+              }
+          
+              buildTypes {
+                  debug {}
+              }
+          }
+          
+          dependencies {
+              implementation 'androidx.appcompat:appcompat:1.6.1'
+          }
+          GRADLE_APP
+          
+          # Create settings.gradle
+          cat > android/settings.gradle << 'GRADLE_SETTINGS'
+          rootProject.name = 'FarmGame'
+          include ':app'
+          GRADLE_SETTINGS
+          
+          # Create gradle wrapper properties
+          cat > android/gradle/wrapper/gradle-wrapper.properties << 'GRADLE_PROPS'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip
+          GRADLE_PROPS
+          
+          # Download official gradle wrapper script
+          curl -s -L -o android/gradlew https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradlew
+          curl -s -L -o android/gradlew.bat https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradlew.bat
           chmod +x android/gradlew
-          ls -la android/gradlew
+          
+          echo "✓ Android project created"
       
-      - name: Build APK with Gradle
+      - name: Build APK
         run: |
           cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace -Dorg.gradle.jvmargs="-Xmx512m" 2>&1
           
-          echo "Building Debug APK..."
-          ./gradlew assembleDebug --stacktrace 2>&1
-          
-          echo ""
-          echo "Checking for APK..."
           if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
-            echo "✅ APK built successfully!"
+            echo "✅ APK built!"
             ls -lh app/build/outputs/apk/debug/app-debug.apk
-            md5sum app/build/outputs/apk/debug/app-debug.apk
           else
             echo "❌ APK not found"
-            find . -name "*.apk" -type f || echo "No APK files found"
+            find . -name "*.apk" -type f 2>/dev/null || echo "No APK files"
             exit 1
           fi
       

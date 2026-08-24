@@ -21,6 +21,7 @@ import { InventoryScreen } from './src/components/InventoryScreen';
 import { MarketScreen } from './src/components/MarketScreen';
 import { ContractsScreen } from './src/components/ContractsScreen';
 import { ShopScreen } from './src/components/ShopScreen';
+import { GameWorldScreen } from './src/world/components/GameWorldScreen';
 
 export default function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -42,7 +43,7 @@ export default function App() {
         const unsubscribe = auth.onAuthStateChanged((user) => {
           if (user) {
             setIsSignedIn(true);
-            setCurrentScreen('home');
+            setCurrentScreen('worldmap');  // Changed from 'home' to 'worldmap'
           } else {
             setIsSignedIn(false);
             setCurrentScreen('login');
@@ -68,6 +69,8 @@ export default function App() {
         return <SplashScreen />;
       case 'login':
         return <LoginScreen />;
+      case 'worldmap':
+        return <GameWorldScreen />;  // NEW: Main game world
       case 'home':
         return <HomeScreen />;
       case 'farm':

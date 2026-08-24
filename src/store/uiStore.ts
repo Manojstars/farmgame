@@ -4,6 +4,7 @@ export type Screen =
   | 'splash'
   | 'login'
   | 'signup'
+  | 'worldmap'  // NEW: Main game world
   | 'home'
   | 'farm'
   | 'animals'

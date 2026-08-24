@@ -32,10 +32,7 @@ jobs:
       
       - name: Create minimal Android build environment
         run: |
-          # Install expo-cli globally
-          npm install -g expo-cli
-          
-          # Try to prebuild
+          # Try to prebuild first
           npx expo prebuild --clean --platform android 2>/dev/null || true
           
           # If that failed, create template with create-expo-app
@@ -43,7 +40,7 @@ jobs:
             echo "Creating minimal Expo app for Android..."
             mkdir -p temp-expo-app
             cd temp-expo-app
-            npx create-expo-app@latest --template --template-path typescript
+            npx create-expo-app@latest .
             cd ..
             
             # If successful, move android folder

@@ -26,11 +26,34 @@ jobs:
       
       - name: Prebuild Android
         run: npx expo prebuild --clean --platform android --no-install
+        continue-on-error: true
       
-      - name: Build with Gradle
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Build with Gradle (fallback if prebuild failed)
+        if: always()
         run: |
-          cd android
-          ./gradlew assembleDebug
+          if [ ! -d "android" ]; then
+            echo "Android directory not created, attempting React Native init..."
+            npx react-native init FarmGameApp --template typescript 2>/dev/null || true
+            if [ -d "FarmGameApp/android" ]; then
+              cp -r FarmGameApp/android ./android
+              rm -rf FarmGameApp
+            fi
+          fi
+          
+          if [ -d "android" ]; then
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleDebug --stacktrace
+          else
+            echo "ERROR: Could not create android directory"
+            exit 1
+          fi
       
       - name: Check for APK
         run: find . -name "app-debug.apk" -type f

@@ -30,42 +30,60 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Create minimal Android build environment
+      - name: Setup Android NDK & SDK
         run: |
-          # Try to prebuild first
-          npx expo prebuild --clean --platform android 2>/dev/null || true
+          # Use GitHub's Android SDK tools
+          echo "Android SDK is already available via android-sdk action"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls -la "$ANDROID_HOME/platforms/" 2>/dev/null | head -5 || echo "Checking SDK..."
           
-          # If that failed, create template with create-expo-app
-          if [ ! -d "android" ]; then
-            echo "Creating minimal Expo app for Android..."
-            mkdir -p temp-expo-app
-            cd temp-expo-app
-            npx create-expo-app@latest .
-            cd ..
-            
-            # If successful, move android folder
-            if [ -d "temp-expo-app/android" ]; then
-              cp -r temp-expo-app/android ./
-              rm -rf temp-expo-app
-              echo "Android directory created from template"
-            else
-              echo "Failed to create android directory from create-expo-app"
-              exit 1
-            fi
+      - name: Create React Native Android project
+        run: |
+          # Create a bare React Native app
+          echo "Creating bare React Native Android project..."
+          npx react-native@0.74.0 init FarmGameBare --typescript --npm 2>&1 || \
+          npx @react-native-community/cli init FarmGameBare --typescript --npm 2>&1 || \
+          npx react-native@latest init FarmGameBare --typescript --npm
+          
+          # Check if android was created
+          if [ ! -d "FarmGameBare/android" ]; then
+            echo "ERROR: Failed to generate android directory"
+            exit 1
           fi
           
-          # Verify gradle wrapper exists
+          # Move android directory to project root
+          mv FarmGameBare/android ./
+          
+          # Verify structure
+          echo "Android directory structure:"
+          ls -la ./android/ | head -10
+          
+          # Verify gradle wrapper
           if [ ! -f "android/gradlew" ]; then
-            echo "ERROR: Gradle wrapper not found"
+            echo "ERROR: gradlew not found"
             exit 1
           fi
           
           chmod +x android/gradlew
+          
+          # Keep only what we need
+          rm -rf FarmGameBare
+          
+          echo "Android setup complete"
       
+      - name: Setup Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew --version
+          
       - name: Build Debug APK
         run: |
           cd android
-          ./gradlew assembleDebug --info
+          # First clean
+          ./gradlew clean
+          # Then build
+          ./gradlew assembleDebug --stacktrace --info 2>&1 | tail -200
       
       - name: Check for APK
         run: find . -name "app-debug.apk" -type f
